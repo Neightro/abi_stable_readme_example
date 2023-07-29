@@ -111,12 +111,15 @@ fn append_string(wrapped: &mut BoxedInterface<'_>, string: RString) {
 
 impl<T> Appender for RVec<T> {
     type Element = T;
+
     fn push(&mut self, value: Self::Element) {
         self.push(value);
     }
+
     fn append(&mut self, vec: RVec<Self::Element>) {
         self.extend(vec);
     }
+
     fn into_rvec(self) -> RVec<Self::Element> {
         self
     }

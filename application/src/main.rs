@@ -14,7 +14,7 @@ fn main() {
 
           This block demonstrates `#[sabi_trait]` generated trait objects
 
-*/////////////////////////////////////////////////////////////////////////////////
+         */////////////////////////////////////////////////////////////////////////////////
 
         // The type annotation is for the reader
         let mut appender: AppenderBox<u32> = library.new_appender()();
@@ -38,7 +38,7 @@ fn main() {
           `DynTrait` is used here as a safe opaque type which can only be unwrapped back to the
           original type in the dynamic library that constructed the `DynTrait` itself.
 
-*/////////////////////////////////////////////////////////////////////////////////
+         */////////////////////////////////////////////////////////////////////////////////
 
         // The type annotation is for the reader
         let mut unwrapped: BoxedInterface = library.new_boxed_interface()();
