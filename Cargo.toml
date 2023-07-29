@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "./application",
+    "./interface",
+    "./implementation",
+]
+default-members = ["./application"]
+resolver = "2"
