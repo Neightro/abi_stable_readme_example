@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types)]
+
 use std::path::Path;
 
 use abi_stable::{
@@ -12,7 +14,7 @@ use abi_stable::{
 /// which must be converted to `ExampleLib_Ref` to be passed through ffi.
 ///
 /// The `#[sabi(kind(Prefix(prefix_ref = ExampleLib_Ref)))]`
-/// attribute tells `StableAbi` to create an ffi-safe static refernce type
+/// attribute tells `StableAbi` to create an ffi-safe static reference type
 /// for `ExampleLib` called `ExampleLib_Ref`.
 ///
 /// The `#[sabi(missing_field(panic))]` attribute specifies that trying to
@@ -49,9 +51,16 @@ impl RootModule for ExampleLib_Ref {
     const VERSION_STRINGS: VersionStrings = package_version_strings!();
 }
 
+/// This loads the root from the library in the `directory` folder.
+pub fn load_root_module_in_directory(directory: &Path) -> Result<ExampleLib_Ref, LibraryError> {
+    ExampleLib_Ref::load_from_directory(directory)
+}
+
+//////////////////////////////////////////////////////////
+
 /// `#[sabi_trait]` is how one creates an ffi-safe trait object from a trait definition.
 ///
-/// In this case the trait object is `Appender_TO<'lt, Pointer<()>, Element>`,where:
+/// In this case, the trait object is `Appender_TO<'lt, Pointer<()>, Element>`,where:
 ///
 /// - `'lt`:
 ///     Is the lifetime bound of the type that constructed the trait object
@@ -63,6 +72,8 @@ impl RootModule for ExampleLib_Ref {
 ///
 /// - `Element`:
 ///     This is the element type of the collection that we operate on.
+///     This is a type parameter because it's a trait object,
+///     which turn associated types into type parameters.
 ///
 #[sabi_trait]
 pub trait Appender {
@@ -98,23 +109,28 @@ pub trait Appender {
 /// `'static` here means that the trait object cannot contain any borrows.
 pub type AppenderBox<T> = Appender_TO<'static, RBox<()>, T>;
 
+// Impls of local traits for dependencies have to be implemented in
+// the interface crate, because of the orphan rules.
+//
+// To avoid compiling more code than necessary,
+// this impl is not compiled by default.
+// it's enabled by the implementation crate but not the user crate.
+#[cfg(feature = "impls")]
+impl<T> Appender for RVec<T> {
+    type Element = T;
 
-/// This loads the root from the library in the `directory` folder.
-///
-/// This for the case where this example is copied into the 3 crates.
-///
-pub fn load_root_module_in_directory(directory: &Path) -> Result<ExampleLib_Ref, LibraryError> {
-ExampleLib_Ref::load_from_directory(directory)
-}
+    fn push(&mut self, value: Self::Element) {
+        self.push(value);
+    }
 
-/*
-/// This loads the root module
-///
-/// This is for the case where this example is copied into a single crate
-pub fn load_root_module_in_directory(_: &Path) -> Result<ExampleLib_Ref, LibraryError> {
-    ExampleLib_Ref::load_module_with(|| Ok(implementation::get_library()))
+    fn append(&mut self, vec: RVec<Self::Element>) {
+        self.extend(vec);
+    }
+
+    fn into_rvec(self) -> RVec<Self::Element> {
+        self
+    }
 }
-*/
 
 //////////////////////////////////////////////////////////
 

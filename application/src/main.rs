@@ -4,9 +4,11 @@ use interface::{
     load_root_module_in_directory, AppenderBox, Appender_TO, BoxedInterface, ExampleLib_Ref,
 };
 
+const LIB_PATH: &str = "./target/debug/deps";
+
 fn main() {
     // The type annotation is for the reader
-    let library: ExampleLib_Ref = load_root_module_in_directory("./target/debug".as_ref())
+    let library: ExampleLib_Ref = load_root_module_in_directory(LIB_PATH.as_ref())
         .unwrap_or_else(|e| panic!("{}", e));
 
     {

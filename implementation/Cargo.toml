@@ -6,8 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+name = "example_library" # Controls name of built dynamic library
+crate-type = ["cdylib"]
 
 [dependencies]
 abi_stable = "0.11.1"
-interface = { path = "../interface" }
+interface = { path = "../interface", features = ["impls"] }
